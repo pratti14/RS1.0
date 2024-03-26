@@ -143,48 +143,7 @@ void loop() {
     Serial.print("JOG4: ");
     Serial.println(JogJ4);
 
-    /*
-    if (precvalpressostato != digitalRead(pressostato)) {
-      WriteAxisPositionAndMessages("[14]=", digitalRead(pressostato));
-      precvalpressostato = digitalRead(pressostato);
-    }
-    */
-    /*} else {                                    //Se ho messaggi dall'HMI, cataloga il codice del messaggio
-    String code = Serial.readString();
-    delay(100);
-    code.trim();
-    if (code.equalsIgnoreCase("M1")) {
-      FlagHomePosition();
-    } else if (code.equalsIgnoreCase("M3")) {   //Incremento del feedrate di 10% alla volta
-      EEPROM.write(0, EEPROM.read(0) + 10);
-      if (EEPROM.read(0) > 100) {
-        EEPROM.write(0, 0);
-      }
-      WriteAxisPositionAndMessages("[0]=", EEPROM.read(0));
-    } else if (code.equalsIgnoreCase("M11")) {
-      utensile = 0;
-      FlagRecordPosition(utensile);
-    } else if (code.equalsIgnoreCase("M12")) {
-      utensile = 1;
-      FlagRecordPosition(utensile);
-    } else if (code.equalsIgnoreCase("M13")) {
-      utensile = 2;
-      FlagRecordPosition(utensile);
-    } else if (code.equalsIgnoreCase("M19")) {
-      FlagDeletePositions();
-    } else if (code.equalsIgnoreCase("M20")) {
-      FlagExecute();
-    } else if (code.equalsIgnoreCase("M22")) {
-      J1.write(110, 80);
-    } else if (code.equalsIgnoreCase("M23")) {
-      AxisMovement(J1, 180, 2, 3, 100);
-    } else if (code.equalsIgnoreCase("M99")) {
-      resetFunc();
-    } else {
-      // Da implementare
-    }
-    */
-  
+    
 }
 void FlagHomePosition() {  //Manda in home position gli assi
   AxisMovement(J1, homeposJ1, 2, 3, 100);
@@ -250,10 +209,9 @@ void FlagExecute() {
 }
 */
 void AxisMovement(VarSpeedServo ax, float destination, int enstopvalueminus, int endstopvalueplus, int feedrate) {
-  bool axenable = true;
   while (abs(ax.read() - destination) > 1 && digitalRead(enstopvalueminus) == 1 && digitalRead(endstopvalueplus) == 1) {  //Testato
     smoothprev = ax.read();
-    while (ax.read() > destination + 1 && digitalRead(enstopvalueminus) == 1 && axenable) {
+    while (ax.read() > destination + 1 && digitalRead(enstopvalueminus) == 1) {
       if (Serial.available() > 0) {  //Se ricevo messaggio di interruzione da HMI aspetto finche non ricevo start
         axenable = false;
       }
@@ -266,7 +224,7 @@ void AxisMovement(VarSpeedServo ax, float destination, int enstopvalueminus, int
       }
       delay(25);
     }
-    while (ax.read() < destination - 1 && digitalRead(endstopvalueplus) == 1 && axenable) {
+    while (ax.read() < destination - 1 && digitalRead(endstopvalueplus) == 1) {
       if (Serial.available() > 0) {  //Se ricevo messaggio di interruzione da HMI aspetto finche non ricevo start
         axenable = false;
       }
@@ -281,56 +239,6 @@ void AxisMovement(VarSpeedServo ax, float destination, int enstopvalueminus, int
       delay(25);
     }
     delay(150);
-    if (!axenable) {  //Se non ho enable dell'asse aspetto finche non ricevo uno start
-      if (Serial.available() > 0) {
-        String code = Serial.readString();
-        delay(100);
-        code.trim();
-        if (code.equalsIgnoreCase("M20")) {
-          axenable = 1;
-        }
-      }
-    }
-
-    delay(50);
   }
 }
 
-
-
-/*void WriteAxesPositionToPC(unsigned short ax) {  //Utilizzata per aggiornare HMI sulla posizione degli assi
-  const int delayTime = 250;
-  switch (ax) {
-    case 1:
-      WriteAxisPositionAndMessages("[10]=", J1.read());
-      precvalJ1 = J1.read();
-      EEPROM.write(10, J1.read());
-      break;
-    case 2:
-      WriteAxisPositionAndMessages("[11]=", J2.read());
-      precvalJ2 = J2.read();
-      EEPROM.write(11, J1.read());
-      break;
-    case 3:
-      WriteAxisPositionAndMessages("[12]=", J3.read());
-      precvalJ3 = J3.read();
-      EEPROM.write(12, J1.read());
-      break;
-    case 4:
-      WriteAxisPositionAndMessages("[13]=", J4.read());
-      precvalJ4 = J4.read();
-      EEPROM.write(13, J1.read());
-      break;
-    default:
-      break;
-  }
-  delay(delayTime);
-}
-*/
-
-/*void WriteAxisPositionAndMessages(String label, int value) {  //Utilizzata per aggiornare HMI sulla posizione degli assi
-  Serial.print(label);
-  Serial.print(value);
-  Serial.print("END");
-}
-*/
