@@ -1,0 +1,4 @@
+In version 1.0 of RSketch: 
+- Removed visual studio app control [Gabriele]
+- Added part to handle potentiometers [Gabriele]
+ 
